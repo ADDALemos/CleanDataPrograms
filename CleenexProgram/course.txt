@@ -1,0 +1,46 @@
+DEFINE CONSTANTS AS
+DEFINE COMPOSED TYPES AS
+Course
+(
+    name STRING(140),
+    term STRING(70),
+    students INTEGER,
+    id STRING(400),
+    idc STRING(400));
+DEFINE FUNCTIONS AS
+GenerateID.generateId(INTEGER) RETURN STRING
+MergeName.merge(OBJECT[], OBJECT[]) RETURN Course
+Convert.removePredefinedPunctuation(STRING) RETURN STRING
+DEFINE ALGORITHMS AS
+TransitiveClosure
+DEFINE INPUT DATA FLOWS AS
+
+TABLE course
+(
+    name STRING(140),
+    academicterm STRING(70),
+    acronym STRING(15),
+    numberofattendingstudents INTEGER,
+    evaluationmethod STRING(400),
+    program STRING(400),    id STRING(400),
+    idc STRING(400));
+
+DEFINE TRANSFORMATIONS AS
+CREATE MAPPING courseWithID
+FROM course c
+LET idg = generateId(0),name=removePredefinedPunctuation(c.name){
+SELECT name,c.academicterm as academicterm, 
+c.numberofattendingstudents as numberofattendingstudents,
+c.id as clusterId, c.idc as idc,idg
+KEY idg}
+
+
+
+
+CREATE MERGING courseMerge
+FROM courseWithID c
+LET A = merge(c.clusterId, c.name,c.academicterm,c.numberofattendingstudents, c.idc)
+{
+SELECT A.name as name, A.id as id, A.term as academicterm, A.students as numberofattendingstudents, A.idc as idc
+KEY id
+}

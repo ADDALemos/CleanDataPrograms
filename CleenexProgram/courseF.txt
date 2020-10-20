@@ -1,0 +1,68 @@
+
+DEFINE CONSTANTS AS
+DEFINE COMPOSED TYPES AS
+DEFINE FUNCTIONS AS
+GenerateCIDS.generateAuthorId(INTEGER) RETURN INTEGER
+Levenshtein.levenshteinDistance(STRING, STRING) RETURN INTEGER
+
+MergeName.mergeName(OBJECT[], OBJECT[]) RETURN STRING
+DEFINE ALGORITHMS AS
+TransitiveClosure
+DEFINE INPUT DATA FLOWS AS
+
+
+
+TABLE course
+(
+    name STRING(140),
+    academicterm STRING(70),
+    acronym STRING(15),
+    numberofattendingstudents integer,
+    evaluationmethod STRING(400),
+    program STRING(400),    id STRING(400),
+    idc STRING(400));
+
+DEFINE TRANSFORMATIONS AS
+CREATE VIEW courseD
+FROM course c
+WHERE c.idc is not null
+{
+SELECT DISTINCT c.name as name,c.academicterm as academicterm, 
+c.numberofattendingstudents as numberofattendingstudents,
+c.id as id, c.idc as idc
+KEY name,id,idc
+}
+
+CREATE MAPPING courseI
+FROM courseD c
+LET idg = generateAuthorId(42){
+SELECT c.name as name,c.academicterm as academicterm, 
+c.numberofattendingstudents as numberofattendingstudents,
+c.id as id, c.idc as idc,idg
+KEY idg}
+
+CREATE MATCHING courseR1
+FROM courseI c, courseI t
+LET sim = levenshteinDistance(c.name, t.name) 
+WHERE sim<=1 AND c.idg<t.idg {
+SELECT t.idg as idg1,t.name as name1, c.idg as idg2, c.name as name2
+}
+
+CREATE CLUSTERING courseR2
+FROM courseR1 r
+BY TransitiveClosure
+
+
+
+CREATE VIEW courseR3
+FROM courseR2 r, courseI i
+WHERE r.name = i.name 
+{
+SELECT DISTINCT i.academicterm as academicterm, 
+i.numberofattendingstudents as numberofattendingstudents,
+i.id as id, i.idc as idc
+, r.name as name
+KEY name
+}
+
+

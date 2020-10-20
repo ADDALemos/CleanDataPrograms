@@ -1,0 +1,30 @@
+DEFINE CONSTANTS AS
+DEFINE COMPOSED TYPES AS
+DEFINE FUNCTIONS AS
+DEFINE ALGORITHMS AS
+TransitiveClosure
+DEFINE INPUT DATA FLOWS AS
+
+TABLE space
+(
+    name STRING(200),
+    id  STRING(25),
+    idparent  STRING(25),
+    typet STRING(50),
+    exam integer,
+    normal integer,
+    description STRING(200)
+);
+
+
+
+DEFINE TRANSFORMATIONS AS
+
+
+
+CREATE VIEW cleanSpace
+FROM space s
+WHERE s.name is not null AND s.normal >6 OR s.typet<>"ROOM"{
+SELECT s.normal,s.exam, s.id, s.idparent,s.name,s.typet
+}
+

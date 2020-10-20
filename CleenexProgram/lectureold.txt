@@ -1,0 +1,37 @@
+DEFINE CONSTANTS AS
+DEFINE COMPOSED TYPES AS
+Space
+(
+	roomName STRING(70),
+	roomID STRING(70),
+	lesson STRING(70),
+	typeT STRING(70),
+	currentC INTEGER,
+	maxC INTEGER,
+	start STRING(70),
+	endDate STRING(70),
+	lectureID STRING(70));
+
+DEFINE FUNCTIONS AS
+DEFINE ALGORITHMS AS
+TransitiveClosure
+DEFINE INPUT DATA FLOWS AS
+
+
+TABLE lecture(typeT STRING(30), nameshifft STRING(30), currentC int, maxC int, start STRING(40),endDate STRING(40),course float, room float, nameR STRING(70));
+
+
+DEFINE TRANSFORMATIONS AS
+
+
+
+CREATE VIEW sol
+FROM lecture t
+WHERE t.nameshifft IS NOT NULL AND t.start IS NOT NULL AND t.room NOT NULL
+{
+SELECT DISTINCT t.typeT as typeT, t.course as id, t.nameshifft as name,
+t.room as roomid,t.currentC as current, t.maxC as maxC,
+t.endDate as endDate, t.start as start, t.nameR as roomNameT
+KEY name, id, start,roomid
+}
+

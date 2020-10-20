@@ -1,0 +1,20 @@
+DEFINE CONSTANTS AS
+DEFINE COMPOSED TYPES AS
+DEFINE FUNCTIONS AS
+DEFINE ALGORITHMS AS
+TransitiveClosure
+DEFINE INPUT DATA FLOWS AS
+
+
+TABLE courseLoads(typeT STRING(50),unit int, total int, course STRING(26));
+
+
+DEFINE TRANSFORMATIONS AS
+
+CREATE VIEW lectureWorkLoad
+FROM courseLoads t
+WHERE t.typeT IS NOT NULL AND t.course IS NOT NULL
+{
+SELECT t.typeT as typeT, t.course as id, t.unit as unit, t.total as total
+KEY typeT, id
+}

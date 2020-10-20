@@ -1,0 +1,38 @@
+DEFINE CONSTANTS AS
+DEFINE COMPOSED TYPES AS
+DEFINE FUNCTIONS AS
+DEFINE ALGORITHMS AS
+TransitiveClosure
+DEFINE INPUT DATA FLOWS AS
+
+TABLE degree
+(
+    name  STRING(100),
+    id STRING(26),
+    academicterm  STRING(21),
+    acronym  STRING(15),
+    typeT  STRING(30),
+    typename  STRING(30),
+    campusid STRING(26),
+    description  STRING(2000),
+    obj  STRING(2000),
+    design  STRING(2000),
+    requisites  STRING(2000),
+    history  STRING(2000),
+    operationregime  STRING(2000),
+    gratuity STRING(2000),
+    links STRING(2000)
+);
+
+
+DEFINE TRANSFORMATIONS AS
+
+
+CREATE VIEW cleanDegree
+FROM degree d
+WHERE d.academicterm="2017/2018"
+{
+SELECT d.name as name, d.id as id, d.campusid as campusid, d.typename as typename
+KEY id
+}
+

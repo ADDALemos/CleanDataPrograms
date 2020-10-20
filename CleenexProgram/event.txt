@@ -1,0 +1,38 @@
+DEFINE CONSTANTS AS
+DEFINE COMPOSED TYPES AS
+DEFINE FUNCTIONS AS
+DEFINE ALGORITHMS AS
+TransitiveClosure
+DEFINE INPUT DATA FLOWS AS
+
+TABLE event
+(
+    roomid STRING(25),
+    typeT STRING(10),
+    startHour STRING(6),
+    endHour STRING(6),
+    startDate STRING(36),
+    endDate STRING(36),
+    weekday STRING(4),
+    day date,
+    info STRING(200),
+    title STRING(200)
+);
+
+
+
+DEFINE TRANSFORMATIONS AS
+
+
+
+CREATE VIEW cleanEvent
+FROM event b
+WHERE  b.roomid is not null AND  b.startcomplete <> b.endcomplete AND b.startcomplete<b.endcomplete
+{
+SELECT DISTINCT b.title as title, 
+b.info as info,b.roomid as roomid,
+b.startcomplete as startcomplete,
+b.endcomplete as endcomplete
+KEY roomid,startcomplete,title
+}
+

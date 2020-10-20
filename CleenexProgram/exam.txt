@@ -1,0 +1,96 @@
+DEFINE CONSTANTS AS 
+DEFINE COMPOSED TYPES AS 
+lecture (
+roomID STRING(26), 
+name STRING(70), 
+typeT STRING(100), 
+currentC INTEGER, 
+maxC INTEGER, 
+startTime STRING(15), 
+endTime STRING(15), 
+day STRING(10), 
+periodStart STRING(10), 
+periodEnd STRING(10), 
+weekday STRING(10), 
+id STRING(26));
+
+DEFINE FUNCTIONS AS
+GenerateID.generateId(INTEGER) RETURN STRING
+MergeName.merge( OBJECT[],OBJECT[], OBJECT[],OBJECT[], OBJECT[],OBJECT[], OBJECT[],OBJECT[], OBJECT[], OBJECT[]) RETURN lecture
+DateFunction.splitDateTime(STRING) RETURN STRING(15)
+DateFunction.splitDate(STRING) RETURN STRING(10)
+DateFunction.dayOfWeek(STRING) RETURN STRING(10)
+
+DEFINE ALGORITHMS AS 
+TransitiveClosure
+
+DEFINE INPUT DATA FLOWS AS 
+TABLE lecture
+(
+typeT STRING(30),
+nameshifft STRING(30), 
+currentC int, 
+maxC int, 
+start STRING(40),
+endDate STRING(40),
+course STRING(26), 
+room STRING(40), 
+nameR STRING(70)
+);
+
+
+DEFINE TRANSFORMATIONS AS
+
+CREATE VIEW lectureNotNull
+FROM lecture t
+WHERE t.nameshifft IS NOT NULL AND t.endDate IS NOT NULL AND t.room IS NOT NULL
+{
+SELECT t.typeT as typeT, t.course as id, t.nameshifft as name,
+t.room as roomid,t.currentC as current, t.maxC as maxC,t.endDate as endDate,
+t.start as startDate KEY name,startDate,roomid
+}
+
+CREATE MAPPING lectureTime
+FROM lectureNotNull t
+LET endTime=splitDateTime(t.endDate),startTime=splitDateTime(t.startDate),
+day=splitDate(t.endDate)
+{
+SELECT t.typeT as typeT, t.id as id, t.name as name,
+t.roomid as roomid,t.current as current, t.maxC as maxC, endTime, startTime,day
+KEY name,startTime,day,roomid
+}
+
+CREATE MAPPING lectureDay
+FROM lectureTime t
+LET weekday=dayOfWeek(t.day)
+{
+SELECT t.typeT as typeT, t.id as id, t.name as name,
+t.roomid as roomid,t.current as current, t.maxC as maxC, t.endTime as endTime,
+t.startTime as startTime,t.day as day,weekday
+KEY name,startTime,day,roomid
+}
+CREATE VIEW lectureMatcheed
+FROM lectureDay c, lectureDay t
+WHERE t.name=c.name AND t.weekday=c.weekday AND t.startTime=c.startTime AND t.roomid=c.roomid
+{
+SELECT t.typeT as typeT1, t.id as id1, t.name as name1,
+t.roomid as roomid1,t.current as current1, t.maxC as maxC1,
+t.endTime as endTime1, t.startTime as startTime1,t.day as day1,
+t.weekday as weekday1,c.typeT as typeT2, c.id as id2, c.name as name2,
+c.roomid as roomid2,c.current as current2, c.maxC as maxC2, c.endTime as endTime2,
+c.startTime as startTime2,c.day as day2,c.weekday as weekday2
+KEY name1,startTime1,day1,roomid1,name2,startTime2,day2,roomid2 
+}
+
+CREATE CLUSTERING clusterLectures
+FROM lectureMatcheed r
+BY TransitiveClosure
+
+
+CREATE MERGING cleanLecture
+FROM clusterLectures c
+LET A = merge(c.clusterId, c.typeT1,c.id1,c.roomid1, c.current1,c.maxC1,c.endTime1,c.startTime1,c.day1,c.weekday1)
+{
+SELECT A.name as name, A.id as id, A.roomID as roomid, A.currentC as currentC, A.maxC as maxC,A.endTime as endTime, A.startTime as startTime, A.day as day,A.weekday as weekday, A. periodStart as periodStart, A.periodEnd as periodEnd
+KEY name, startTime, day
+}
